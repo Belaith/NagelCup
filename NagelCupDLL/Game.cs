@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NagelCupDLL
+namespace NagelCup
 {
-    class Game
+    public class Game
     {
-        public List<Player> Players { get; private set; }
-        public List<Round> Rounds { get; private set; }
+        public SortableList<Player> Players { get; set; } = new SortableList<Player>();
+        public List<Round> Rounds { get; set; } = new List<Round>();
     }
 }

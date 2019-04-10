@@ -79,5 +79,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NagelCupDLL\NagelCupDLL.csproj">
+      <Project>{06797094-b9df-4e6d-b627-c07082f43af0}</Project>
+      <Name>NagelCupDLL</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
