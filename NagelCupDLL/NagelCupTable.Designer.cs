@@ -41,7 +41,7 @@
             // 
             this.lblCountAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblCountAll.AutoSize = true;
-            this.lblCountAll.Location = new System.Drawing.Point(3, 334);
+            this.lblCountAll.Location = new System.Drawing.Point(3, 190);
             this.lblCountAll.Name = "lblCountAll";
             this.lblCountAll.Size = new System.Drawing.Size(143, 13);
             this.lblCountAll.TabIndex = 6;
@@ -52,7 +52,7 @@
             // 
             this.lblCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCount.AutoSize = true;
-            this.lblCount.Location = new System.Drawing.Point(575, 334);
+            this.lblCount.Location = new System.Drawing.Point(314, 190);
             this.lblCount.Name = "lblCount";
             this.lblCount.Size = new System.Drawing.Size(151, 13);
             this.lblCount.TabIndex = 5;
@@ -71,12 +71,15 @@
             this.dataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dataGridView.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dataGridView.Location = new System.Drawing.Point(3, 3);
             this.dataGridView.MultiSelect = false;
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView.Size = new System.Drawing.Size(723, 328);
+            this.dataGridView.Size = new System.Drawing.Size(462, 184);
             this.dataGridView.TabIndex = 7;
+            this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
+            this.dataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellValueChanged);
             this.dataGridView.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.dataGridView_RowsAdded);
             // 
             // playerBindingSource
@@ -93,7 +96,7 @@
             this.Controls.Add(this.lblCount);
             this.MinimumSize = new System.Drawing.Size(305, 133);
             this.Name = "NagelCupTable";
-            this.Size = new System.Drawing.Size(729, 347);
+            this.Size = new System.Drawing.Size(468, 203);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerBindingSource)).EndInit();
             this.ResumeLayout(false);

@@ -14,21 +14,19 @@ namespace NagelCup
     {
         Game game;
         Round round;
-        bool locked = false;
 
         public NagelCupTable()
         {
             InitializeComponent();
         }
 
-        public NagelCupTable(Game game, bool locked) : this()
+        public NagelCupTable(Game game) : this()
         {
             this.game = game;
-            this.locked = locked;
 
             dataGridView.DataSource = new BindingSource(game.Players, null);
 
-            if (!locked)
+            if (!game.Locked)
             {
                 dataGridView.AllowUserToAddRows = true;
                 dataGridView.AllowUserToDeleteRows = true;
@@ -36,7 +34,7 @@ namespace NagelCup
 
             foreach (DataGridViewColumn dc in dataGridView.Columns)
             {
-                if (!locked && (dc.Index.Equals(0) || dc.Index.Equals(1)))
+                if (!game.Locked && dc.Index.Equals(0))
                 {
                     dc.ReadOnly = false;
                 }
@@ -47,18 +45,19 @@ namespace NagelCup
             }
 
             dataGridView.Sort(dataGridView.Columns[1], ListSortDirection.Ascending);
+            countPlayers();
+            game.PropertyChanged += locked_PropertyChanged;
         }
 
-        public NagelCupTable(Round round, bool locked) : this()
+        public NagelCupTable(Round round) : this()
         {
             this.round = round;
-            this.locked = locked;
 
             dataGridView.DataSource = new BindingSource(round.Players, null);
 
             foreach (DataGridViewColumn dc in dataGridView.Columns)
             {
-                if (!locked && (dc.Index.Equals(3)))
+                if (!round.Locked && dc.Index.Equals(3))
                 {
                     dc.ReadOnly = false;
                 }
@@ -69,6 +68,39 @@ namespace NagelCup
             }
 
             dataGridView.Sort(dataGridView.Columns[2], ListSortDirection.Ascending);
+            countPlayers();
+            round.PropertyChanged += locked_PropertyChanged;
+        }
+
+        private void locked_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            bool? locked = game?.Locked ?? round?.Locked;
+
+            if (locked ?? false == true)
+            {
+                foreach (DataGridViewColumn dc in dataGridView.Columns)
+                {
+                    dc.ReadOnly = true;
+                }
+                dataGridView.AllowUserToAddRows = false;
+                dataGridView.AllowUserToDeleteRows = false;
+
+                if (game != null)
+                {
+                    game.PropertyChanged -= locked_PropertyChanged;
+                }
+                if (round != null)
+                {
+                    round.PropertyChanged -= locked_PropertyChanged;
+
+                    round.SimpleListPlayers = round.SimpleListPlayers;
+
+                    //Round newRound = Round.DeepClone<Round>(round);
+
+                    //round = newRound;
+                    //todo clone
+                }
+            }
         }
 
         private void dataGridView_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
@@ -99,6 +131,27 @@ namespace NagelCup
             }
 
             return highest + 1;
+        }
+
+        private void dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            countPlayers();
+        }
+
+        private void countPlayers()
+        {
+            SortableList<Player> players = game?.Players ?? round?.Players;
+
+            int allPlayers = players.Count;
+            int activePlayers = players.Count(x => x.Alive && x.ID > 0);
+
+            lblCount.Text = $"Anzahl Spieler insgeamt: {allPlayers}";
+            lblCountAll.Text = $"Anzahl Spieler noch aktiv: {activePlayers}";
+        }
+
+        private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
     }
 }
