@@ -92,13 +92,6 @@ namespace NagelCup
                 if (round != null)
                 {
                     round.PropertyChanged -= locked_PropertyChanged;
-
-                    round.SimpleListPlayers = round.SimpleListPlayers;
-
-                    //Round newRound = Round.DeepClone<Round>(round);
-
-                    //round = newRound;
-                    //todo clone
                 }
             }
         }

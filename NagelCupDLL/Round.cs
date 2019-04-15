@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace NagelCup
 {
@@ -25,6 +26,7 @@ namespace NagelCup
                 players = value;
             }
         }
+        [XmlIgnore]
         public List<Player> SimpleListPlayers
         {
             get
@@ -36,6 +38,8 @@ namespace NagelCup
                 Players = new SortableList<Player>(value);
             }
         }
+
+        public int ID { get; set; } = -1;
 
         private bool locked = false;
         public bool Locked
@@ -66,6 +70,7 @@ namespace NagelCup
         {
             Round newRound = new Round();
 
+            newRound.ID = Round.DeepClone<int>(ID);
             newRound.Locked = Round.DeepClone<bool>(Locked);
 
             foreach (Player player in Players)

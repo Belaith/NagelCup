@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Xml.Serialization;
 
 namespace NagelCup
 {
@@ -19,37 +20,17 @@ namespace NagelCup
         public MainWindow()
         {
             InitializeComponent();
-
-#if DEBUG
-            game = new Game() { Locked = true };
-
-            game.Players = new SortableList<Player>() { new Player("Till", 1, "", true) };
-            game.Rounds = new List<Round>() { new Round() { Players = new SortableList<Player>() { new Player("Till", 1, "1", true)}, Locked = true } };
-            game.Rounds.Add(new Round() { Players = new SortableList<Player>() { new Player("Till", 1, "1", true) }, Locked = true });
-            game.CurrentRound = new Round() { Players = new SortableList<Player>() { new Player("Till", 1, "1", true) } };
+            
+            game = new Game();
 
             NagelCupTable table = new NagelCupTable(game);
             table.Dock = DockStyle.Fill;
 
-            TabPage tabPage1 = new TabPage();
-            tabPage1.Name = "tabPageTeilnehmer";
-            tabPage1.Text = "Teilnehmer";
-            tabPage1.Controls.Add(table);
-            tabControl.TabPages.Add(tabPage1);
-
-            int rounds = 0;
-            foreach (var round in game.Rounds)
-            {
-                NagelCupTable tableRounds = new NagelCupTable(round);
-                tableRounds.Dock = DockStyle.Fill;
-
-                TabPage tabPage = new TabPage();
-                tabPage.Name = "tabPageRound1";
-                tabPage.Text = "Runde " + ++rounds;
-                tabPage.Controls.Add(tableRounds);
-                tabControl.TabPages.Add(tabPage);
-            }
-#endif
+            TabPage tabPage = new TabPage();
+            tabPage.Name = "tabPageTeilnehmer";
+            tabPage.Text = "Teilnehmer";
+            tabPage.Controls.Add(table);
+            tabControl.TabPages.Add(tabPage);            
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
@@ -58,57 +39,58 @@ namespace NagelCup
             {
                 if (File.Exists(openFileDialog.FileName))
                 {
-                    txtFilePath.Text = openFileDialog.FileName;
+                    path = openFileDialog.FileName;
 
                     tabControl.TabPages.Clear();
-
-                    //TODO file existiert, einlesen
-
-                    //Teilnehmer und alte Chunks -> Tabs
+                    
+                    XmlSerializer serializer = new XmlSerializer(typeof(Game));
+                    using (TextReader writer = new StreamReader(path))
+                    {
+                        game = (Game)serializer.Deserialize(writer);
+                    }
 
                     game.Init();
 
-                    NagelCupTable tableRound = new NagelCupTable(game.CurrentRound);
-                    tableRound.Dock = DockStyle.Fill;
+                    NagelCupTable table = new NagelCupTable(game);
+                    table.Dock = DockStyle.Fill;
 
                     TabPage tabPage = new TabPage();
-                    tabPage.Name = $"tabPageRound {game.Rounds.Count + 1}";
-                    tabPage.Text = $"Runde {game.Rounds.Count + 1}";
-                    tabPage.Controls.Add(tableRound);
+                    tabPage.Name = "tabPageTeilnehmer";
+                    tabPage.Text = "Teilnehmer";
+                    tabPage.Controls.Add(table);
                     tabControl.TabPages.Add(tabPage);
 
+                    foreach (Round round in game.Rounds.OrderBy(x=>x.ID).ToList())
+                    {
+                        NagelCupTable tableRound = new NagelCupTable(round);
+                        tableRound.Dock = DockStyle.Fill;
+
+                        TabPage tabPageRound = new TabPage();
+                        tabPageRound.Name = $"tabPageRound {round.ID}";
+                        tabPageRound.Text = $"Runde {round.ID}";
+                        tabPageRound.Controls.Add(tableRound);
+                        tabControl.TabPages.Add(tabPageRound);
+                    }
+
+                    if (game.CurrentRound != null)
+                    {
+                        NagelCupTable tableRound = new NagelCupTable(game.CurrentRound);
+                        tableRound.Dock = DockStyle.Fill;
+
+                        TabPage tabPageRound = new TabPage();
+                        tabPageRound.Name = $"tabPageRound {game.CurrentRound.ID}";
+                        tabPageRound.Text = $"Runde {game.CurrentRound.ID}";
+                        tabPageRound.Controls.Add(tableRound);
+                        tabControl.TabPages.Add(tabPageRound);
+
+                        tabControl.SelectTab(tabControl.TabPages.Count - 1);
+                    }
+
                     tabControl.SelectTab(tabControl.TabPages.Count - 1);
-                }
-                else
-                {
-                    if (MessageBox.Show("Soll eine neue Datei erzeugt werden?", "Datei nicht gefunden!", MessageBoxButtons.OKCancel) == DialogResult.OK)
-                    {
-                        txtFilePath.Text = openFileDialog.FileName;
 
-                        tabControl.TabPages.Clear();
-
-                        //TODO file existiert nochnicht, anlegen
-
-                        game = new Game();
-
-                        NagelCupTable table = new NagelCupTable(game);
-                        table.Dock = DockStyle.Fill;
-
-                        TabPage tabPage = new TabPage();
-                        tabPage.Name = "tabPageTeilnehmer";
-                        tabPage.Text = "Teilnehmer";
-                        tabPage.Controls.Add(table);
-                        tabControl.TabPages.Add(tabPage);
-                    }
-                    else
-                    {
-                        return;
-                    }
+                    game.Players.ListChanged += Players_ListChanged;
                 }
             }
-
-            game.Players.ListChanged += Players_ListChanged;
-
         }
 
         private void Players_ListChanged(object sender, ListChangedEventArgs e)
@@ -161,6 +143,113 @@ namespace NagelCup
                 tabControl.TabPages.Add(tabPage);
 
                 tabControl.SelectTab(tabControl.TabPages.Count - 1);
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                saveFileDialog.FileName = path;
+            }
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(Game));
+                using (TextWriter writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    serializer.Serialize(writer, game);
+                }
+
+                if (!string.IsNullOrWhiteSpace(path))
+                {
+                    path = saveFileDialog.FileName;
+                }
+            }
+        }
+
+        private void btnResetToRound_Click(object sender, EventArgs e)
+        {
+            if (tabControl.TabCount > 1 && 0 < tabControl.SelectedIndex && tabControl.SelectedIndex < tabControl.TabCount - 1)
+            {
+                int resetToRound = tabControl.SelectedIndex;
+
+                Round oldRound = game.Rounds.FirstOrDefault(x => x.ID == resetToRound);
+
+                tabControl.TabPages.Clear();
+
+                game.Rounds.RemoveAll(x => x.ID >= resetToRound);
+                game.CurrentRound = null;
+
+                game.SimpleListPlayers.ForEach(x => { x.Alive = false; x.Chunk = string.Empty; });
+
+                foreach (Player player in game.Players)
+                {
+                    Player roundPlayer = oldRound.Players.FirstOrDefault(x=> x.ID == player.ID);
+
+                    if (roundPlayer.Chunk != null)
+                    {
+                        player.Alive = roundPlayer.Alive;
+                        player.Chunk = roundPlayer.Chunk;
+                    }
+                }
+
+                game.Init();
+
+                NagelCupTable table = new NagelCupTable(game);
+                table.Dock = DockStyle.Fill;
+
+                TabPage tabPage = new TabPage();
+                tabPage.Name = "tabPageTeilnehmer";
+                tabPage.Text = "Teilnehmer";
+                tabPage.Controls.Add(table);
+                tabControl.TabPages.Add(tabPage);
+
+                foreach (Round round in game.Rounds.OrderBy(x => x.ID).ToList())
+                {
+                    NagelCupTable tableRound = new NagelCupTable(round);
+                    tableRound.Dock = DockStyle.Fill;
+
+                    TabPage tabPageRound = new TabPage();
+                    tabPageRound.Name = $"tabPageRound {round.ID}";
+                    tabPageRound.Text = $"Runde {round.ID}";
+                    tabPageRound.Controls.Add(tableRound);
+                    tabControl.TabPages.Add(tabPageRound);
+                }
+
+                if (game.CurrentRound != null)
+                {
+                    NagelCupTable tableRound = new NagelCupTable(game.CurrentRound);
+                    tableRound.Dock = DockStyle.Fill;
+
+                    TabPage tabPageRound = new TabPage();
+                    tabPageRound.Name = $"tabPageRound {game.CurrentRound.ID}";
+                    tabPageRound.Text = $"Runde {game.CurrentRound.ID}";
+                    tabPageRound.Controls.Add(tableRound);
+                    tabControl.TabPages.Add(tabPageRound);
+
+                    tabControl.SelectTab(tabControl.TabPages.Count - 1);
+                }
+
+                tabControl.SelectTab(tabControl.TabPages.Count - 1);
+
+            }
+            else if (tabControl.SelectedIndex == 0)
+            {
+                tabControl.TabPages.Clear();
+
+                game.Rounds.Clear();
+
+                game.SimpleListPlayers.ForEach(x => { x.Alive = true; x.Chunk = string.Empty; });
+
+                NagelCupTable table = new NagelCupTable(game);
+                table.Dock = DockStyle.Fill;
+
+                TabPage tabPage = new TabPage();
+                tabPage.Name = "tabPageTeilnehmer";
+                tabPage.Text = "Teilnehmer";
+                tabPage.Controls.Add(table);
+                tabControl.TabPages.Add(tabPage);
             }
         }
     }

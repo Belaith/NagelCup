@@ -16,6 +16,7 @@ namespace NagelCup
         private static Random random = new Random();
 
         public SortableList<Player> Players { get; set; } = new SortableList<Player>();
+        [XmlIgnore]
         public List<Player> SimpleListPlayers
         {
             get
@@ -52,9 +53,11 @@ namespace NagelCup
 
         public void Init()
         {
-            if (CurrentRound == null && Rounds?.Count() > 0)
+            if (CurrentRound == null && Players.Any(x=>x.Chunk != null))
             {
                 CurrentRound = new Round();
+
+                CurrentRound.ID = Rounds.Count() + 1;
 
                 CurrentRound.Locked = false;
                 CurrentRound.Players = new SortableList<Player>();
@@ -68,12 +71,15 @@ namespace NagelCup
         public void NextRound(int chunks)
         {
             Locked = true;
-            
-            Rounds.Add(CurrentRound.Copy());
 
+            if (CurrentRound != null)
+            {
+                Rounds.Add(CurrentRound.Copy());
+            }
             Rounds.ForEach(x => x.Locked = true);
 
             CurrentRound = new Round();
+            CurrentRound.ID = Rounds.Count() + 1;
 
             foreach (Player player in Players.Where(x => x.Alive && x.ID > 0))
             {
