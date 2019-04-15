@@ -82,6 +82,24 @@ namespace NagelCup
             }
         }
 
+        private string seedChunk;
+        [System.ComponentModel.DisplayName("Fester Klotz")]
+        public string SeedChunk
+        {
+            get
+            {
+                return seedChunk;
+            }
+            set
+            {
+                if (value != this.seedChunk)
+                {
+                    this.seedChunk = value;
+                    NotifyPropertyChanged();
+                }
+            }
+        }
+
         public Player()
         {
         }

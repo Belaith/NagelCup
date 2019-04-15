@@ -34,7 +34,7 @@ namespace NagelCup
 
             foreach (DataGridViewColumn dc in dataGridView.Columns)
             {
-                if (!game.Locked && dc.Index.Equals(0))
+                if (!game.Locked && (dc.Index.Equals(0) || dc.Index.Equals(4)))
                 {
                     dc.ReadOnly = false;
                 }
@@ -64,6 +64,11 @@ namespace NagelCup
                 else
                 {
                     dc.ReadOnly = true;
+                }
+
+                if (dc.Index.Equals(4))
+                {
+                    dc.Visible = false;
                 }
             }
 

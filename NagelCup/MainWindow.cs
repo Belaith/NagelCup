@@ -133,14 +133,28 @@ namespace NagelCup
             {
                 game.NextRound(chunks);
 
-                NagelCupTable tableRound = new NagelCupTable(game.CurrentRound);
-                tableRound.Dock = DockStyle.Fill;
+                if (game.Rounds.Count - 1 > 0)
+                {
+                    tabControl.TabPages.RemoveAt(tabControl.TabPages.Count - 1);
 
-                TabPage tabPage = new TabPage();
-                tabPage.Name = $"tabPageRound {game.Rounds.Count + 1}";
-                tabPage.Text = $"Runde {game.Rounds.Count + 1}";
-                tabPage.Controls.Add(tableRound);
-                tabControl.TabPages.Add(tabPage);
+                    NagelCupTable tableRound = new NagelCupTable(game.Rounds[game.Rounds.Count - 1]);
+                    tableRound.Dock = DockStyle.Fill;
+
+                    TabPage tabPageRound = new TabPage();
+                    tabPageRound.Name = $"tabPageRound {game.Rounds[game.Rounds.Count - 1].ID}";
+                    tabPageRound.Text = $"Runde {game.Rounds[game.Rounds.Count - 1].ID}";
+                    tabPageRound.Controls.Add(tableRound);
+                    tabControl.TabPages.Add(tabPageRound);
+                }
+
+                NagelCupTable tableRoundCurrent = new NagelCupTable(game.CurrentRound);
+                tableRoundCurrent.Dock = DockStyle.Fill;
+
+                TabPage tabPageRoundCurrent = new TabPage();
+                tabPageRoundCurrent.Name = $"tabPageRound_{game.Rounds.Count + 1}";
+                tabPageRoundCurrent.Text = $"Runde {game.Rounds.Count + 1}";
+                tabPageRoundCurrent.Controls.Add(tableRoundCurrent);
+                tabControl.TabPages.Add(tabPageRoundCurrent);
 
                 tabControl.SelectTab(tabControl.TabPages.Count - 1);
             }

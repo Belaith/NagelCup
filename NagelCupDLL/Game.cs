@@ -77,6 +77,11 @@ namespace NagelCup
                 Rounds.Add(CurrentRound.Copy());
             }
             Rounds.ForEach(x => x.Locked = true);
+            
+            foreach (Player player in Players)
+            {
+                player.Chunk = string.Empty;
+            }
 
             CurrentRound = new Round();
             CurrentRound.ID = Rounds.Count() + 1;
@@ -85,16 +90,28 @@ namespace NagelCup
             {
                 CurrentRound.Players.Add(player);
             }
-            
-            foreach (Player player in Players)
+
+            List<List<Player>> chunksList = new List<List<Player>>();
+
+            for (int i = 0; i < chunks; i++)
             {
-                player.Chunk = string.Empty;
+                chunksList.Add(new List<Player>());
+            }
+            
+            foreach (var player in CurrentRound.Players.Where(x => !string.IsNullOrEmpty(x.SeedChunk)))
+            {
+                if (int.TryParse(player.SeedChunk, out int chunk) && chunksList.Count() >= chunk)
+                {
+                    player.Chunk = chunk.ToString();
+                    chunksList[chunk - 1].Add(player);
+                }
             }
 
-            int playerNumber = 0;
-            foreach (var player in RandomPermutation(Players.Where(x => x.Alive && x.ID > 0)))
+            foreach (var player in RandomPermutation(CurrentRound.Players.Where(x => string.IsNullOrEmpty(x.Chunk))))
             {
-                player.Chunk = (playerNumber++ % chunks + 1).ToString();
+                List<Player> chunk = chunksList.FirstOrDefault(x => x.Count() == chunksList.Min(y => y.Count()));
+                chunk.Add(player);
+                player.Chunk = (chunksList.IndexOf(chunk) +1).ToString();
             }
         }
 
