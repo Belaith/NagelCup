@@ -184,10 +184,17 @@ namespace NagelCup
 
         private void btnResetToRound_Click(object sender, EventArgs e)
         {
-            if (tabControl.TabCount > 1 && 0 < tabControl.SelectedIndex && tabControl.SelectedIndex < tabControl.TabCount - 1)
-            {
-                int resetToRound = tabControl.SelectedIndex;
+            int resetToRound = tabControl.SelectedIndex;
 
+            string roundMessage = resetToRound == 0 ? "Teilnehmeranlage" : "Runde " + resetToRound.ToString();
+
+            if (MessageBox.Show($"Wirklich auf {roundMessage} zurücksetzen?", "Achtung!", MessageBoxButtons.YesNo) != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (tabControl.TabCount > 1 && 0 < resetToRound && resetToRound < tabControl.TabCount - 1)
+            {
                 Round oldRound = game.Rounds.FirstOrDefault(x => x.ID == resetToRound);
 
                 tabControl.TabPages.Clear();
@@ -248,7 +255,7 @@ namespace NagelCup
                 tabControl.SelectTab(tabControl.TabPages.Count - 1);
 
             }
-            else if (tabControl.SelectedIndex == 0)
+            else if (resetToRound == 0)
             {
                 tabControl.TabPages.Clear();
 
