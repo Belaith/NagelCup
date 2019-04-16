@@ -187,8 +187,8 @@ namespace NagelCup
             int resetToRound = tabControl.SelectedIndex;
 
             string roundMessage = resetToRound == 0 ? "Teilnehmeranlage" : "Runde " + resetToRound.ToString();
-
-            if (MessageBox.Show($"Wirklich auf {roundMessage} zurücksetzen?", "Achtung!", MessageBoxButtons.YesNo) != DialogResult.OK)
+            
+            if (MessageBox.Show($"Wirklich auf {roundMessage} zurücksetzen?", "Achtung!", MessageBoxButtons.YesNo) != DialogResult.Yes)
             {
                 return;
             }

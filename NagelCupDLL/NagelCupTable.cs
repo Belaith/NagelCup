@@ -163,6 +163,8 @@ namespace NagelCup
                 }
             }
             dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+            countPlayers();
         }
     }
 }
