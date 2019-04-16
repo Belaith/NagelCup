@@ -81,7 +81,7 @@ namespace NagelCup
         {
             bool? locked = game?.Locked ?? round?.Locked;
 
-            if (locked ?? false == true)
+            if ((locked ?? false) == true)
             {
                 foreach (DataGridViewColumn dc in dataGridView.Columns)
                 {
@@ -149,6 +149,19 @@ namespace NagelCup
 
         private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
+            dataGridView.CancelEdit();
+        }
+
+        private void dataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == 3 && dataGridView.Columns[e.ColumnIndex].ReadOnly == false)
+            {
+                Player player = (Player)dataGridView.Rows[e.RowIndex].DataBoundItem;
+                if (player != null)
+                {
+                    player.Alive = !player.Alive;
+                }
+            }
             dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
         }
     }
