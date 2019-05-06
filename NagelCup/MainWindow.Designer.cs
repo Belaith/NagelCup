@@ -66,7 +66,7 @@
             // 
             this.openFileDialog.DefaultExt = "xml";
             this.openFileDialog.FileName = "NagelCup.xml";
-            this.openFileDialog.Filter = "xml|*.xml";
+            this.openFileDialog.Filter = "xml|*.xml|csv|*.csv";
             // 
             // txtChunks
             // 

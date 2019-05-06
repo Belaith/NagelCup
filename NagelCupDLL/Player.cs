@@ -28,9 +28,9 @@ namespace NagelCup
             }
         }
 
-        private int id = -1;
+        private int? id;
         [System.ComponentModel.DisplayName("Nummer")]
-        public int ID
+        public int? ID
         {
             get
             {
@@ -41,7 +41,7 @@ namespace NagelCup
                 if (value != this.id)
                 {
                     this.id = value;
-                    //NotifyPropertyChanged();
+                    NotifyPropertyChanged();
                 }
             }
         }

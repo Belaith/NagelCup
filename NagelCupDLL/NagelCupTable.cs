@@ -34,7 +34,7 @@ namespace NagelCup
 
             foreach (DataGridViewColumn dc in dataGridView.Columns)
             {
-                if (!game.Locked && (dc.Index.Equals(0) || dc.Index.Equals(4)))
+                if (!game.Locked && (dc.Index.Equals(0) || dc.Index.Equals(1) || dc.Index.Equals(4)))
                 {
                     dc.ReadOnly = false;
                 }
@@ -101,36 +101,6 @@ namespace NagelCup
             }
         }
 
-        private void dataGridView_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
-        {
-            foreach (DataGridViewRow row in dataGridView.Rows)
-            {
-                Player player = (Player)row.DataBoundItem;
-
-                if (player != null && player.ID == -1)
-                {
-                    player.ID = findNextID();
-                }
-            }
-        }
-
-        private int findNextID()
-        {
-            int highest = 0;
-
-            foreach (DataGridViewRow row in dataGridView.Rows)
-            {
-                Player player = (Player)row.DataBoundItem;
-
-                if (player != null && player.ID > highest)
-                {
-                    highest = player.ID;
-                }
-            }
-
-            return highest + 1;
-        }
-
         private void dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             countPlayers();
@@ -165,6 +135,11 @@ namespace NagelCup
             dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
             countPlayers();
+        }
+
+        private void dataGridView_DefaultValuesNeeded(object sender, DataGridViewRowEventArgs e)
+        {
+            e.Row.Cells[1].Value = game.Players.Max(x => x.ID ?? 0) + 1;
         }
     }
 }
