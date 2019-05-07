@@ -297,6 +297,8 @@ namespace NagelCup
             {
                 tabControl.TabPages.Clear();
 
+                game.Locked = false;
+
                 game.Rounds.Clear();
 
                 game.SimpleListPlayers.ForEach(x => { x.Alive = true; x.Chunk = string.Empty; });
